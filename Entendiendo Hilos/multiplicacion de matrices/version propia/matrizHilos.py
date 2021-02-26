@@ -1,5 +1,6 @@
 #librerias
 from threading import Thread
+#numpy lo importamos para rellenar las matrices
 import numpy as np
 import math
 import threading
@@ -10,7 +11,8 @@ matrizB = []
 matrizResultado = []
 
 #funciones
-def entradas():    
+def entradas(): 
+    #tamano de las matrices n   
     global n
     global numeroHilos
     n=int(input("ingrese filas y columnas: ")) 
@@ -23,6 +25,7 @@ def inicializarMatrices():
 
     #creo la matriz A con numeros entero entre 0 y 100 con tamaño nxn
     matrizA = np.random.randint(0,100,(n,n)) #numerominimo,numeromaximo,tamañomatriz
+    #volvemos toda la matriz entera y le quitamos el punto decimal 
     matrizA = matrizA.astype(int)
     #imprimo la matriz A
     print("matriz A")
@@ -53,9 +56,10 @@ def hilos():
     threadHandle = []
 
     for j in range (numeroHilos):
-        tiempo = Thread(target=multiplicacionMatriz, args=(int((n/numeroHilos) * j),int((n/numeroHilos) * (j+1))))
-        threadHandle.append(tiempo)
-        tiempo.start()
+        hilo = Thread(target=multiplicacionMatriz, args=(int((n/numeroHilos) * j),int((n/numeroHilos) * (j+1))))
+        #se guardan los hilos en una lista para tener historial de hilos
+        threadHandle.append(hilo)
+        hilo.start()
     for j in range (numeroHilos):
         threadHandle[j].join()
 
@@ -72,6 +76,7 @@ if __name__ == "__main__":
     entradas()
     inicializarMatrices()
 
+    #empezamos el contador para calcular el tiempo
     start_time = time.time()
     hilos()
     end_time = time.time()
