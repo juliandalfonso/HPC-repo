@@ -75,5 +75,5 @@ if __name__ == "__main__":
     start_time = time.time()
     hilos()
     end_time = time.time()
-    print("Time taken to multiply two matrices in parallel comes out to be : " + str(end_time - start_time))
+    print("El tiempo requerido para multiplicar las dos matrices en paralelo fue de : " + str(end_time - start_time))
     resultado()
