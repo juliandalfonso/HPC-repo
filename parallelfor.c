@@ -11,7 +11,7 @@ int main(){
 
 
 
-void simple(int n, float *a, float *b)
+int simple(int n, float *a, float *b)
 {
  int i;
 #pragma omp parallel for
