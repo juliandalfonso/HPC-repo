@@ -3,6 +3,8 @@
 
 void subdomain(float *x, int istart, int ipoints)
 {
+    //ipoints -> tamano de la particion
+    //istart -> inicio del array
     int i;
     for (i = 0; i < ipoints; i++)
         x[istart + i] = 123.456;
@@ -11,6 +13,8 @@ void subdomain(float *x, int istart, int ipoints)
 
 void sub(float *x, int npoints)
 {
+    //npoints -> tamano del vector 
+
     int iam, nt, ipoints, istart;
 #pragma omp parallel default(shared) private(iam, nt, ipoints, istart)
     {
