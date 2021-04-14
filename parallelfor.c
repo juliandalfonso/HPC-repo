@@ -3,10 +3,10 @@
 
 
 
-void simple(int n, float[] *a, float[] *b)
+void simple(int n, float *a, float *b)
 {
  int i;
-#pragma omp parallel num_threads(2) shared(n)
+#pragma omp parallel for
  for (i=1; i<n; i++) /* i is private by default */
  b[i] = (a[i] + a[i-1]) / 2.0;
 }
@@ -15,7 +15,7 @@ void simple(int n, float[] *a, float[] *b)
 int main(){
     float a[20], b[20];
 
-    //printf(simple(20, &a, &b));
+    simple(20, &a, &b);
     return 0;
 }
 
