@@ -13,10 +13,11 @@ void simple(int n, float *a, float *b)
 
  
 int main(){
-    float a[20], b[20];
 
+    float a[20], b[20];
     simple(20, a, b);
     return 0;
+    
 }
 
 
