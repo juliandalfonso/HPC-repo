@@ -3,7 +3,7 @@
 
 
 
-void simple(int n, float *a, float *b)
+void simple(int n, float[] *a, float[] *b)
 {
  int i;
 #pragma omp parallel for
@@ -13,9 +13,9 @@ void simple(int n, float *a, float *b)
 
 
 int main(){
-    float a[], b[];
+    float a[20], b[20];
 
-    printf(simple(2, &a, &b));
+    printf(simple(20, &a, &b));
     return 0;
 }
 
