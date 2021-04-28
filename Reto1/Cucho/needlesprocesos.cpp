@@ -7,7 +7,7 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <wait.h>
-#include "timer.h"
+#include <timer.h>
 
 using namespace std;
 
