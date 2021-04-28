@@ -1,67 +1,76 @@
-/*
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
- *
- *      This program is distributed in the hope that it will be useful,
- *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
- *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
- */
+#ifndef __TIMER_HH__
+#define __TIMER_HH__
 
-/*  * * * * * * * * * * * * * * * * * * * * * * * * * * *
- Code by Simon Monk
- http://www.simonmonk.org
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+#include <chrono>
+#include <functional>
+#include <iostream>
 
-#ifndef Timer_h
-#define Timer_h
+class Timer {
+private:
+  //////////////////////
+  // Type definitions //
+  //////////////////////
+  typedef std::chrono::high_resolution_clock Clock;
+  typedef std::chrono::time_point<Clock> Time;
+#ifdef TIMER_USES_MICROSECONDS
+  typedef std::chrono::microseconds TimeUnit;
+#else
+  typedef std::chrono::milliseconds TimeUnit;
+#endif
+public:
+  typedef std::function<void(long long duration)> CallBack;
 
-#include <inttypes.h>
-#include "Event.h"
-
-#define MAX_NUMBER_OF_EVENTS (10)
-
-#define TIMER_NOT_AN_EVENT (-2)
-#define NO_TIMER_AVAILABLE (-1)
-
-class Timer
-{
+private:
+  /**
+   * @brief A function object that is called with the lifetime on destruction.
+   *
+   * The function takes as argument a value of type long long with the lifetime.
+   * The units of that time depends on the chosen resolution of the timer.
+   *
+   * If no callback is provided, a default callback that does nothing is used by
+   * default.
+   */
+  CallBack onDestructionCall_;
+  /// Construction time of the object
+  Time construction_;
 
 public:
-  Timer(void);
-
-  int8_t every(unsigned long period, void (*callback)(void));
-  int8_t every(unsigned long period, void (*callback)(void), int repeatCount);
-  int8_t after(unsigned long duration, void (*callback)(void));
-  int8_t oscillate(uint8_t pin, unsigned long period, uint8_t startingValue);
-  int8_t oscillate(uint8_t pin, unsigned long period, uint8_t startingValue, int repeatCount);
-  
-  /**
-   * This method will generate a pulse of !startingValue, occuring period after the
-   * call of this method and lasting for period. The Pin will be left in !startingValue.
-   */
-  int8_t pulse(uint8_t pin, unsigned long period, uint8_t startingValue);
-  
-  /**
-   * This method will generate a pulse of pulseValue, starting immediately and of
-   * length period. The pin will be left in the !pulseValue state
-   */
-  int8_t pulseImmediate(uint8_t pin, unsigned long period, uint8_t pulseValue);
-  void stop(int8_t id);
-  void update(void);
-  void update(unsigned long now);
-
-protected:
-  Event _events[MAX_NUMBER_OF_EVENTS];
-  int8_t findFreeEventIndex(void);
-
+  /// Constructor
+  Timer(CallBack onDestructionCall = [](long long duration)->void {})
+  : onDestructionCall_(onDestructionCall)
+  , construction_(Clock::now()) {
+    /*
+     Note: Do not put anything here as it will count on the time the object
+     is measuring. If you really need to do that then move the
+     initialization of the construction_ attribute to be the last thing the
+     constructor does.
+     */
+  }
+  // copy constructor
+  Timer(const Timer& st)
+  : onDestructionCall_(st.onDestructionCall_)
+  , construction_(st.construction_) {}
+  /// Returns the elapsed time since the construction of the object
+  long long elapsed(void) const {
+    auto now = Clock::now();
+    return std::chrono::duration_cast<TimeUnit>(now - construction_).count();
+  }
+  /// Destructor
+  ~Timer(void) { onDestructionCall_(elapsed()); }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Timer& timer) {
+  os << timer.elapsed();
+#ifdef TIMER_USES_MICROSECONDS
+  os << " us.";
+#else
+  os << " ms.";
+#endif
+  return os;
+}
+
+#define COUT_TIMER(name, str)                                                  \
+  Timer name([](long long d) {std::cout << str << (d / 1000.0) << std::endl;})
+
 
 #endif
